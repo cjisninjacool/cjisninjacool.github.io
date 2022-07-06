@@ -1,4 +1,10 @@
 function myFunction(p1, p2) {
   return p1 * p2;
 }
-document.getElementById("demo").innerHTML = myFunction(4, 3);
+
+function myFunction(){
+  num = document.getElementById("Num1").value;
+  two = document.getElementById("Num2").value;
+
+  document.getElementById("demo").innerHTML = myFunction(num, two);
+}
