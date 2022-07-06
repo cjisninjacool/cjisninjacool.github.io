@@ -6,5 +6,5 @@ function myFunction(){
   num = document.getElementById("Num1").value;
   two = document.getElementById("Num2").value;
 
-  document.getElementById("demo").innerHTML = myFunction(num, two);
+  document.getElementById("demo").innerHTML = num*two;
 }
