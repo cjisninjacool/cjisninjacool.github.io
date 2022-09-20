@@ -1,0 +1,200 @@
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+<header>
+  <title>QrCode Maker</title>
+  <link rel="stylesheet" href="style.css">
+
+</header>
+<style>
+  .form {
+    font-family: Helvetica, sans-serif;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 16px;
+    background: #f7f7f7;
+  }
+  .form h1 {
+    background: blue;
+    padding: 20px 0;
+    font-weight: 300;
+    text-align: center;
+    color: #fff;
+    margin: -16px -16px 16px -16px;
+    font-size:  25px;
+  }
+  .form input[type="text"],
+  .form input[type="url"] {
+    box-sizing: border-box;
+    width: 100%;
+    background: #fff;
+    margin-bottom: 4%;
+    border: 1px solid #ccc;
+    padding: 3%;
+    color: #555;
+  }
+  .form input[type="text"]:focus,
+  .form input[type="url"]:focus {
+    box-shadow: 0 0 5px blue;
+    padding: 3%;
+    border: 1px solid blue;
+  }
+  
+  .form button {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 150px;
+    margin: 0 auto;
+    padding: 3%;
+    background: blue;
+    border-bottom: 2px solid #5868bf;
+    border-top-style: none;
+    border-right-style: none;
+    border-left-style: none;
+    color: #fff;
+    cursor: pointer;
+  }
+  .form button:hover {
+    background: rgba(88,104,191, 0.5);
+  }
+  #qrcode-container{
+      display:none;
+  }
+  
+  .qrcode{
+    padding: 16px;
+  }
+  .qrcode img{
+    margin: 0 auto;
+  }
+  .slidecontainer {
+    width: 100%;
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+  
+  .slider:hover {
+    opacity: 1;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: blue;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: blue;
+    cursor: pointer;
+  }
+</style>
+<div class="form">
+  <h1>QR Code Maker</h1>
+
+  <form>
+    <input type="url" id="website" name="website" placeholder="Text or Link (Required)" required />
+    <input type="url" id="LightColor" name="website" placeholder="LightColor (Optional)" required><input id = "LightColorPicker"type="color" /></input>
+    <br>
+    <br>
+    <input type="url" id="DarkColor" name="website" placeholder="DarkColor (Optional)" required /><input id = "DarkColorPicker"type="color" /></input>
+    <br>
+    <br>
+    <button type="button" onclick="generateQRCode()">
+      Generate QR Code
+    </button>
+  </form>
+  <input type="range" min="1" max="100" value="50" class="slider" id="Height">
+  <div id = "HeightValue"></div>
+  <input type="range" min="1" max="100" value="50" class="slider" id="Width">
+  <div id = "WidthValue"></div>
+  <div id="qrcode-container">
+    <div id="qrcode" class="qrcode"></div>
+    <h4>With some styles</h4>
+    <div id="qrcode-2" class="qrcode"></div>
+  </div>
+
+  <script>
+    /*Display Slider Values*/
+var sliderone = document.getElementById("Height");
+sliderone.value = 28
+var Labelone = document.getElementById("HeightValue");
+Labelone.innerHTML = "Height: " +sliderone.value;
+
+sliderone.oninput = function() {
+    Labelone.innerHTML = "Height: " + this.value;
+}
+
+var slidertwo = document.getElementById("Width");
+slidertwo.value = 28
+var Labeltwo = document.getElementById("WidthValue");
+Labeltwo.innerHTML = "Width: " + slidertwo.value;
+
+
+slidertwo.oninput = function() {
+    Labeltwo.innerHTML = "Width: "+ this.value;
+}
+
+/*use color picker*/
+var LightColorPicker = document.getElementById("LightColorPicker")
+var LightColorinput = document.getElementById("LightColor")
+LightColorPicker.oninput = function(){
+    LightColorinput.value = LightColorPicker.value
+}
+/* use dark color */
+var DarkColorPicker = document.getElementById("DarkColorPicker")
+var DarlColorinput = document.getElementById("DarkColor")
+DarkColorPicker.oninput = function(){
+    DarlColorinput.value = DarkColorPicker.value
+}
+function generateQRCode() {
+      let website = document.getElementById("website").value;
+
+      if (website) {
+        let qrcodeContainer = document.getElementById("qrcode");
+        let Height = document.getElementById("Height").value * 10;
+        let Width = document.getElementById("Width").value * 10;
+        qrcodeContainer.innerHTML = "";
+        new QRCode(qrcodeContainer, website);
+        let darkColor = document.getElementById("DarkColor").value;
+        let lightcolor = document.getElementById("LightColor").value;
+
+        
+
+        /*With some styles*/
+        let qrcodeContainer2 = document.getElementById("qrcode-2");
+        qrcodeContainer2.innerHTML = "";
+        if (darkColor==false){
+            darkColor = "#000000"
+        }
+        if (lightcolor == false){
+            lightcolor = "#ffffff"
+        }
+        new QRCode(qrcodeContainer2, {
+          text: website,
+          width: Width,
+          height: Height,
+          colorDark: darkColor,
+          colorLight: lightcolor,
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        document.getElementById("qrcode-container").style.display = "block";
+      } else {
+        alert("Please enter a valid URL");
+      }
+    }
+  </script>
+</div>
