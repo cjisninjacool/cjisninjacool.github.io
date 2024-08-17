@@ -4,6 +4,7 @@
 
 .Monarda{
   font-family: 'Monarda', sans-serif;
+  font-size: 70px !important;
 }
 
 body {
@@ -832,7 +833,7 @@ h1, h2, h3, h4, h5,
     background: rgba(0, 0, 0, 0.4);
     z-index: 1; }
   .site-section-hero, .site-section-hero .row {
-    height: 90vh;
+    height: 600px;
     min-height: 500px;
     z-index: 2;
     position: relative; }
@@ -848,11 +849,17 @@ h1, h2, h3, h4, h5,
   background-repeat: no-repeat; }
 
 .site-section {
-  padding: 7em 0; }
-  .site-section.darken-bg {
+  padding-left: 7em;
+  padding-bottom: 7em;
+  padding-right: 7em;
+
+}
+.site-section.darken-bg {
     background: #1a1a1a;
-    position: relative; }
-    .site-section.darken-bg:before {
+    position: relative; 
+}
+  
+.site-section.darken-bg:before {
       content: "";
       position: absolute;
       left: 0;
