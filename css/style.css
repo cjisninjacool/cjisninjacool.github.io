@@ -1,4 +1,11 @@
 /* Base */
+
+@import url('https://fonts.cdnfonts.com/css/monarda');
+
+.Monarda{
+  font-family: 'Monarda', sans-serif;
+}
+
 body {
   line-height: 1.7;
   color: #000;
