@@ -109,7 +109,13 @@ class DistortTile {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.img);
+    // Camera photos carry EXIF orientation tags that browsers auto-rotate for
+    // display, but texImage2D() from an <img> can source the un-rotated pixel
+    // data, so the canvas ends up flipped relative to the visible photo.
+    // Drawing through a 2D canvas first guarantees the texture matches
+    // whatever orientation is actually being rendered on screen.
+    const source = this.getOrientedSource();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
     this.uMouse = gl.getUniformLocation(program, 'uMouse');
     this.uStrength = gl.getUniformLocation(program, 'uStrength');
@@ -119,6 +125,15 @@ class DistortTile {
     this.resize();
     this.ready = true;
     return true;
+  }
+
+  getOrientedSource() {
+    const off = document.createElement('canvas');
+    off.width = this.img.naturalWidth || this.img.width;
+    off.height = this.img.naturalHeight || this.img.height;
+    const octx = off.getContext('2d');
+    octx.drawImage(this.img, 0, 0, off.width, off.height);
+    return off;
   }
 
   resize() {
