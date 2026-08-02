@@ -1,7 +1,14 @@
-// Lightweight WebGL ripple/displacement effect for image tiles on hover.
+// Lightweight WebGL lens/bulge displacement effect for image tiles on hover.
 // Progressive enhancement only: skipped on touch devices, coarse pointers,
 // reduced-motion preference, or if WebGL is unavailable — the plain <img>
 // underneath is always a fully valid fallback.
+//
+// The displacement is a static (non-travelling) bulge centred on the cursor,
+// with the falloff and texture sampling both corrected for the tile's aspect
+// ratio and object-fit: cover cropping. Without those corrections a radial
+// effect on a non-square tile reads as an animated diagonal skew, which looks
+// like the image is rotating as the cursor moves — this keeps it a simple,
+// stable push away from the pointer.
 
 const VERT = `
   attribute vec2 aPos;
@@ -18,19 +25,22 @@ const FRAG = `
   uniform sampler2D uTex;
   uniform vec2 uMouse;
   uniform float uStrength;
-  uniform float uTime;
+  uniform float uAspect;   // tile width / height, so the falloff radius stays circular
+  uniform vec2 uCoverScale; // scales uv to emulate object-fit: cover on the raw texture
 
   void main() {
     vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+
     vec2 diff = uv - uMouse;
+    diff.x *= uAspect;
     float dist = length(diff);
-    float falloff = smoothstep(0.4, 0.0, dist);
-    float ripple = sin(dist * 18.0 - uTime * 5.0) * 0.012;
-    vec2 offset = normalize(diff + 0.0001) * falloff * uStrength * ripple * 6.0;
-    vec2 distorted = uv + offset;
-    float scale = 1.0 - uStrength * falloff * 0.05;
-    vec2 centered = (distorted - 0.5) * scale + 0.5;
-    gl_FragColor = texture2D(uTex, vec2(centered.x, 1.0 - centered.y));
+    float falloff = smoothstep(0.32, 0.0, dist) * uStrength;
+    vec2 dir = dist > 0.0001 ? diff / dist : vec2(0.0);
+    dir.x /= uAspect;
+
+    vec2 distorted = uv - dir * falloff * 0.07;
+    vec2 covered = (distorted - 0.5) * uCoverScale + 0.5;
+    gl_FragColor = texture2D(uTex, vec2(covered.x, 1.0 - covered.y));
   }
 `;
 
@@ -59,7 +69,8 @@ class DistortTile {
     this.targetStrength = 0;
     this.mouse = [0.5, 0.5];
     this.raf = null;
-    this.start = performance.now();
+    this.aspect = 1;
+    this.coverScale = [1, 1];
 
     el.addEventListener('mouseenter', () => this.onEnter());
     el.addEventListener('mousemove', (e) => this.onMove(e));
@@ -102,7 +113,8 @@ class DistortTile {
 
     this.uMouse = gl.getUniformLocation(program, 'uMouse');
     this.uStrength = gl.getUniformLocation(program, 'uStrength');
-    this.uTime = gl.getUniformLocation(program, 'uTime');
+    this.uAspect = gl.getUniformLocation(program, 'uAspect');
+    this.uCoverScale = gl.getUniformLocation(program, 'uCoverScale');
 
     this.resize();
     this.ready = true;
@@ -116,6 +128,17 @@ class DistortTile {
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+
+    this.aspect = rect.width / rect.height;
+
+    const naturalWidth = this.img.naturalWidth || rect.width;
+    const naturalHeight = this.img.naturalHeight || rect.height;
+    const imgAspect = naturalWidth / naturalHeight;
+    const boxAspect = this.aspect;
+    const ratio = imgAspect / boxAspect;
+    // Mirrors CSS object-fit: cover so the WebGL texture is cropped the same
+    // way as the underlying <img>, instead of squashing the whole image in.
+    this.coverScale = ratio > 1 ? [1 / ratio, 1] : [1, ratio];
   }
 
   onEnter() {
@@ -143,7 +166,8 @@ class DistortTile {
       const gl = this.gl;
       gl.uniform2f(this.uMouse, this.mouse[0], this.mouse[1]);
       gl.uniform1f(this.uStrength, this.strength);
-      gl.uniform1f(this.uTime, (performance.now() - this.start) / 1000);
+      gl.uniform1f(this.uAspect, this.aspect);
+      gl.uniform2f(this.uCoverScale, this.coverScale[0], this.coverScale[1]);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       this.canvas.style.opacity = this.strength > 0.01 ? '1' : '0';
       this.img.style.opacity = this.strength > 0.01 ? '0' : '1';
