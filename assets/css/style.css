@@ -502,6 +502,52 @@ main.view {
 .no-touch .tile:hover .tile__meta { opacity: 1; }
 
 /* ==========================================================================
+   Home page sections (below the hero)
+   ========================================================================== */
+
+.home-feature {
+  padding: 10vh var(--grid-margin) 9vh;
+  border-top: 1px solid var(--color-border);
+}
+
+.home-feature__intro { max-width: 58ch; margin-bottom: 5vh; }
+
+.home-feature__lede {
+  font-family: var(--font-serif);
+  font-size: var(--fs-l);
+  line-height: 1.3;
+  color: var(--color-text-70);
+}
+
+.home-feature__lede strong { color: var(--color-text); font-weight: 500; font-style: italic; }
+
+.home-feature__lede a {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-text-45);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur-fast) var(--ease-out);
+}
+
+.home-feature__lede a:hover { text-decoration-color: var(--color-text); }
+
+.home-photos { padding: 0 0 11vh; }
+
+.home-photos__head {
+  padding: 0 var(--grid-margin) 4vh;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.home-photos__head .page-head__title { margin: 0; }
+
+@media (max-width: 30em) {
+  .home-photos__head { flex-direction: column; gap: 10px; }
+}
+
+/* ==========================================================================
    Lightbox
    ========================================================================== */
 
