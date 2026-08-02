@@ -109,11 +109,14 @@ class DistortTile {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    // Camera photos carry EXIF orientation tags that browsers auto-rotate for
-    // display, but texImage2D() from an <img> can source the un-rotated pixel
-    // data, so the canvas ends up flipped relative to the visible photo.
-    // Drawing through a 2D canvas first guarantees the texture matches
-    // whatever orientation is actually being rendered on screen.
+    // WebGL uploads texture rows top-to-bottom by default, but texture v=0 is
+    // conventionally treated as the bottom when sampled — without this flag
+    // the image renders upside down (a 180° flip) regardless of orientation.
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    // Camera photos also carry EXIF orientation tags that browsers auto-rotate
+    // for display, but texImage2D() from an <img> can source the un-rotated
+    // pixel data. Drawing through a 2D canvas first guarantees the texture
+    // matches whatever orientation is actually being rendered on screen.
     const source = this.getOrientedSource();
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
